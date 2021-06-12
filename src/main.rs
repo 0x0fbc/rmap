@@ -25,25 +25,24 @@ fn main() {
     // Parse comma separated ports and target lists into vecs of strings.
     // Targets is required so we can just unwrap it.
     let targets: Vec<&str> = argv.value_of("targets").unwrap()
-                                     .split(",").collect();
+                                     .split(',').collect();
 
-    let mut split_ports: Vec<&str>;
+    let split_ports: Vec<&str>;
     match argv.value_of("ports") {
         Some(ports_in) => {
-            split_ports = ports_in.split(",").collect();
+            split_ports = ports_in.split(',').collect();
         }
         // scan all ports by default
         None => {
-            split_ports = Vec::new();
-            split_ports.push("1-65535");
+            split_ports = vec!["1-65535"];
         }
     }
 
     // Determine the ports to be scanned
     let mut ports: HashSet<u16> = HashSet::new();
     for port_spec in split_ports {
-        if port_spec.contains("-") {
-            let range_spec: Vec<&str> = port_spec.split("-").collect();
+        if port_spec.contains('-') {
+            let range_spec: Vec<&str> = port_spec.split('-').collect();
             if range_spec.len() != 2 {
                 // Check that the spec is properly formed
                 println!("Improper port range specification: {}",
@@ -56,7 +55,7 @@ fn main() {
                 let end = range_spec.get(1).unwrap()
                                       .parse::<u16>().unwrap();
                 // Check that the range's values make sense
-                if !(start <= end) {
+                if start > end {
                     println!("Improper port range specification: {}",
                              port_spec);
                     exit(2);
@@ -76,7 +75,4 @@ fn main() {
             }
         }
     }
-
-
-
 }
