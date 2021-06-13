@@ -1,6 +1,6 @@
 use clap::{Arg, App};
 use std::collections::HashSet;
-use std::net::IpAddr;
+use std::net::{IpAddr, TcpStream, SocketAddr};
 use std::process::exit;
 use std::str::FromStr;
 
@@ -88,6 +88,21 @@ fn main() {
                 println!("Invalid target {}", raw_target);
                 exit(1);
             }
+        }
+    }
+
+    // Simplest possible scan
+    for target in targets {
+        let mut open: Vec<u16> = Vec::new();
+        for port in &ports {
+            // if TCP Stream doesn't error the port must be open
+            match TcpStream::connect(SocketAddr::new(target, *port)) {
+                Ok(_c) => open.push(*port),
+                Err(_e) => ()
+            }
+        }
+        for port in open {
+            println!("{}: OPEN {}", target, port);
         }
     }
 }
