@@ -1,6 +1,8 @@
 use clap::{Arg, App};
 use std::collections::HashSet;
+use std::net::IpAddr;
 use std::process::exit;
+use std::str::FromStr;
 
 fn main() {
     let argv = App::new("rmap")
@@ -24,7 +26,7 @@ fn main() {
 
     // Parse comma separated ports and target lists into vecs of strings.
     // Targets is required so we can just unwrap it.
-    let targets: Vec<&str> = argv.value_of("targets").unwrap()
+    let raw_targets: Vec<&str> = argv.value_of("targets").unwrap()
                                      .split(',').collect();
 
     let split_ports: Vec<&str>;
@@ -72,6 +74,19 @@ fn main() {
             match port_spec.parse::<u16>() {
                 Ok(p) => {ports.insert(p);},
                 Err(_e) => () // Do Nothing
+            }
+        }
+    }
+
+    let mut targets: Vec<IpAddr> = Vec::new();
+    for raw_target in raw_targets {
+        match IpAddr::from_str(raw_target) {
+            Ok(addr) => {
+                targets.push(addr);
+            },
+            Err(_e) => {
+                println!("Invalid target {}", raw_target);
+                exit(1);
             }
         }
     }
